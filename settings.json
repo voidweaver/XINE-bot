@@ -1,0 +1,11 @@
+{
+    "c": {
+        "embed": {
+            "error": "#ff4040",
+            "info": "#40c4ff",
+            "success": "#00e676",
+            "warning": "#ffd740"
+        }
+    },
+    "prefix": "%"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "XINE-bot",
+  "version": "0.1.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "keywords": [],
+  "author": "voidweaver",
+  "license": "MIT",
+  "dependencies": {
+    "common-tags": "^1.8.0",
+    "discord-akairo": "^8.0.0",
+    "discord.js": "^12.2.0",
+    "mongoose": "^5.9.25"
+  },
+  "devDependencies": {}
+}
