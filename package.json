@@ -16,6 +16,7 @@
     "discord-akairo": "^8.0.0",
     "discord.js": "^12.2.0",
     "mongoose": "^5.9.25",
+    "yt-search": "^2.1.8",
     "ytdl-core-discord": "^1.2.1"
   },
   "devDependencies": {}

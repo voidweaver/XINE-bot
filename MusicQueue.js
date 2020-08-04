@@ -19,7 +19,11 @@ module.exports = class MusicQueue {
 
             this.dispatcher = dispatcher;
 
-            song.channel.send(new MessageEmbed().setTitle('Playing '));
+            song.channel.send(
+                new MessageEmbed().setDescription(
+                    `Now playing **[${song.info.title}](${song.url})**`
+                )
+            );
 
             dispatcher.on('finish', () => {
                 this.requests.shift();
@@ -42,12 +46,6 @@ module.exports = class MusicQueue {
         this.dispatcher.end();
         this.dispatcher = null;
         this.connection.disconnect();
-    }
-
-    getInfos() {
-        return this.requests.map((song) => {
-            return song.info;
-        });
     }
 
     setVolume(vol) {

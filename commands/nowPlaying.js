@@ -3,6 +3,7 @@ const { MessageEmbed } = require('discord.js');
 const { stripIndent } = require('common-tags');
 
 const { c } = require('../settings.json');
+const { humanTime } = require('../util');
 
 module.exports = class NowPlayingCommand extends Command {
     constructor() {
@@ -32,7 +33,7 @@ module.exports = class NowPlayingCommand extends Command {
         msg.channel.send(
             new MessageEmbed().setColor(c.embed.info).setDescription(stripIndent`
                 :musical_note:‎ ‎ **Currently Playing:
-                [${current.title}](${current.url})** (${humanTime(current.length)})
+                [${current.info.title}](${current.url})** (${humanTime(current.info.duration)})
             `)
         );
     }

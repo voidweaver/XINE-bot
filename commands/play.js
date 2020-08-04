@@ -1,13 +1,11 @@
 const { Command } = require('discord-akairo');
 const { MessageEmbed } = require('discord.js');
 const { stripIndents } = require('common-tags');
-const JoinCommand = require('./join');
+const search = require('yt-search');
 
 const { c } = require('../settings.json');
 const MusicQueue = require('../MusicQueue');
-const Song = require('../Song');
-const { getPrefix } = require('../util');
-
+const { getPrefix, humanTime } = require('../util');
 module.exports = class PlayCommand extends Command {
     constructor() {
         super('play', {
@@ -15,8 +13,9 @@ module.exports = class PlayCommand extends Command {
             category: 'music',
             args: [
                 {
-                    id: 'url',
-                    type: 'url',
+                    id: 'query',
+                    type: 'string',
+                    match: 'text',
                 },
             ],
             channel: 'guild',
@@ -24,10 +23,10 @@ module.exports = class PlayCommand extends Command {
     }
 
     async exec(msg, args) {
-        if (!args || !args.url) {
+        if (!args || !args.query) {
             msg.channel.send(
                 new MessageEmbed().setTitle('No arguments provided').setColor(c.embed.error)
-                    .setDescription(stripIndents`You must specify the url to the song you wish to play.
+                    .setDescription(stripIndents`You must specify a query or the url to the song you wish to play.
                     For example: ${getPrefix(
                         this.client,
                         msg.guild
@@ -60,11 +59,41 @@ module.exports = class PlayCommand extends Command {
             throw new Error('Queue not found despite creation');
         }
 
-        queue.queue(
-            new Song({
-                url: args.url.toString(),
+        let song;
+
+        let youtube_regex = /(?:https?:\/\/)?(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|\w+\?v=|.+&v=))((\w|-){11})/;
+
+        if (youtube_regex.test(args.query)) {
+            song = {
+                url: args.query,
                 channel: msg.channel,
-            })
+            };
+        } else {
+            song = await new Promise((resolve, reject) => {
+                search(args.query, (err, data) => {
+                    if (err) reject(err);
+                    let video = data.videos[0];
+                    resolve({
+                        url: video.url,
+                        channel: msg.channel,
+                        info: {
+                            title: video.title,
+                            duration: video.duration.seconds,
+                        },
+                    });
+                });
+            });
+        }
+
+        queue.queue(song);
+
+        msg.channel.send(
+            new MessageEmbed()
+                .setTitle('Song queued')
+                .setColor(c.embed.info)
+                .setDescription(
+                    `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`
+                )
         );
     }
 };

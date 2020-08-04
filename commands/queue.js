@@ -47,26 +47,26 @@ module.exports = class QueueCommand extends Command {
 
         let current;
 
-        let queue_infos = queue.getInfos();
+        let songs = queue.requests;
 
-        if (queue_infos.length) {
-            queue_infos.forEach((info, i) => {
+        if (songs.length) {
+            songs.forEach((song, i) => {
                 if (i == 0) {
-                    current = info;
+                    current = song;
                     return;
                 }
 
                 items += `**${i}**`.padStart(31, '‎ ') + '\n';
                 titles +=
                     visualPadBack(
-                        `**[${info.title}](${info.url})** (${humanTime(info.length)})`,
+                        `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`,
                         40 + 28 + 4 + 4
                     ) + '\n';
             });
 
             songs_embed.setDescription(stripIndent`
                 :musical_note:‎ ‎ **Currently Playing:
-                [${current.title}](${current.url})** (${humanTime(current.length)})
+                [${current.info.title}](${current.url})** (${humanTime(current.info.duration)})
             `);
         } else {
             songs_embed.setDescription(`:no_entry_sign:‎ ‎ **Not currently playing any song**`);
