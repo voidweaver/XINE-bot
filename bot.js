@@ -3,32 +3,32 @@ const Akairo = require('discord-akairo');
 const MongooseProvider = require('./providers/MongooseProvider');
 
 const model = require('./model');
-const { token } = require('./auth.json');
+const { token, ownerID } = require('./auth.json');
 
 class XINE extends Akairo.AkairoClient {
     constructor() {
         super({
-            ownerID: ''
+            ownerID: ownerID,
         });
 
         this.commandHandler = new Akairo.CommandHandler(this, {
             directory: './commands/',
-            prefix: msg => {
+            prefix: (msg) => {
                 if (msg.guild) return this.settings.get(msg.guild.id, 'prefix', '%');
                 return '%';
             },
-            allowMention: true
+            allowMention: true,
         });
 
         this.commandHandler.useListenerHandler(this.listenerHandler);
 
         this.listenerHandler = new Akairo.ListenerHandler(this, {
-            directory: './listeners/'
+            directory: './listeners/',
         });
 
         this.listenerHandler.setEmitters({
             commandHandler: this.commandHandler,
-            listenerHandler: this.listenerHandler
+            listenerHandler: this.listenerHandler,
         });
 
         this.commandHandler.loadAll();
@@ -36,7 +36,7 @@ class XINE extends Akairo.AkairoClient {
 
         this.settings = new MongooseProvider(model);
 
-        this.queues = new Collection();
+        this.players = new Collection();
     }
 
     async login(token) {

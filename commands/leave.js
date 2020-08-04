@@ -1,7 +1,4 @@
 const { Command } = require('discord-akairo');
-const { MessageEmbed } = require('discord.js');
-
-const { c } = require('../settings.json');
 
 module.exports = class LeaveCommand extends Command {
     constructor() {
@@ -14,21 +11,8 @@ module.exports = class LeaveCommand extends Command {
     }
 
     exec(msg) {
-        if (!msg.guild.voice || !msg.guild.voice.connection) {
-            msg.channel.send(
-                new MessageEmbed()
-                    .setTitle('Error')
-                    .setColor(c.embed.error)
-                    .setDescription('I am not in a voice channel.')
-            );
-        }
+        const player = this.client.players.get(msg.guild.id);
 
-        let queue = this.client.queues.get(msg.guild.id);
-
-        if (queue) queue.disconnect();
-
-        if (msg.guild.voice.channel) {
-            msg.guild.voice.channel.leave();
-        }
+        if (player) player.disconnect();
     }
 };

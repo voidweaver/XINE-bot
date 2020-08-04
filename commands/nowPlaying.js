@@ -16,25 +16,23 @@ module.exports = class NowPlayingCommand extends Command {
     }
 
     async exec(msg) {
-        let queue = this.client.queues.get(msg.guild.id);
+        let player = this.client.players.get(msg.guild.id);
 
-        if (!queue || !queue.requests[0]) {
+        if (!player || !player.requests[0]) {
             msg.channel.send(
                 new MessageEmbed()
-                    .setTitle('No song is being played')
                     .setColor(c.embed.error)
-                    .setDescription('I am not in a voice channel.')
+                    .setDescription(':no_entry_sign:‎ ‎ **Not currently playing any song**')
             );
             return;
         }
 
-        let current = queue.requests[0];
+        let current = player.requests[0];
 
         msg.channel.send(
             new MessageEmbed().setColor(c.embed.info).setDescription(stripIndent`
                 :musical_note:‎ ‎ **Currently Playing:
-                [${current.info.title}](${current.url})** (${humanTime(current.info.duration)})
-            `)
+                [${current.info.title}](${current.url})** (${humanTime(current.info.duration)})`)
         );
     }
 };

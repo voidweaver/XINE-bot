@@ -1,18 +1,30 @@
 const ytdl = require('ytdl-core-discord');
 const { MessageEmbed } = require('discord.js');
 
-module.exports = class MusicQueue {
-    constructor(connection) {
-        this.connection = connection;
+module.exports = class MusicPlayer {
+    constructor(channel) {
+        this.channel = channel;
+        this.channel.join().then((connection) => {
+            this.connection = connection;
+        });
+
         this.requests = [];
         this.dispatcher; // Dispatcher for the current song
 
         this.volume = 1;
     }
 
+    join(channel) {
+        this.channel = channel;
+        this.channel.join().then((connection) => {
+            this.connection = connection;
+        });
+    }
+
     play(song) {
         ytdl(song.url).then((stream) => {
             const dispatcher = this.connection.play(stream, {
+                quality: 'highestaudio',
                 type: 'opus',
             });
             dispatcher.setVolumeLogarithmic(this.volume);
@@ -55,7 +67,6 @@ module.exports = class MusicQueue {
     disconnect() {
         this.clearQueue();
         this.dispatcher.end();
-        this.dispatcher = null;
         this.connection.disconnect();
     }
 

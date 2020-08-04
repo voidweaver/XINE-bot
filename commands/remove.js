@@ -3,7 +3,6 @@ const { MessageEmbed } = require('discord.js');
 const { stripIndent } = require('common-tags');
 
 const { c } = require('../settings.json');
-const MusicQueue = require('../MusicQueue');
 const { getPrefix } = require('../util');
 
 module.exports = class RemoveCommand extends Command {
@@ -31,9 +30,9 @@ module.exports = class RemoveCommand extends Command {
             return;
         }
 
-        let queue = this.client.queues.get(msg.guild.id);
+        let player = this.client.players.get(msg.guild.id);
 
-        if (!msg.guild.voice || !msg.guild.voice.connection) {
+        if (!player) {
             msg.channel.send(
                 new MessageEmbed()
                     .setTitle('Error')
@@ -41,24 +40,26 @@ module.exports = class RemoveCommand extends Command {
                     .setDescription('I am not in a voice channel.')
             );
             return;
-        } else if (!queue) {
-            this.client.queues.set(msg.guild.id, new MusicQueue(msg.guild.voice.connection));
-            queue = this.client.queues.get(msg.guild.id);
         }
 
-        if (!queue) {
-            throw new Error('Queue not found despite creation');
-        }
-
-        if (args.index <= 0 || args.index >= queue.requests.length) {
+        if (args.index <= 0 || args.index >= player.requests.length) {
             msg.channel.send(
                 new MessageEmbed()
                     .setTitle('Could not remove song')
                     .setColor(c.embed.error)
                     .setDescription(`There exists no song with index ${args.index}.`)
             );
+            return;
         }
 
-        queue.remove(args.index);
+        let original = player.requests[args.index];
+        player.remove(args.index);
+
+        msg.channel.send(
+            new MessageEmbed()
+                .setTitle('Song removed')
+                .setColor(c.embed.success)
+                .setDescription(`Removed **[${original.info.title}](${original.url})** from queue`)
+        );
     }
 };

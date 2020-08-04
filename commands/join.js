@@ -1,7 +1,7 @@
 const { Command } = require('discord-akairo');
 const { MessageEmbed } = require('discord.js');
 
-const MusicQueue = require('../MusicQueue');
+const Player = require('../MusicPlayer');
 
 module.exports = class JoinCommand extends Command {
     constructor() {
@@ -24,10 +24,8 @@ module.exports = class JoinCommand extends Command {
             return;
         }
 
-        const connection = await msg.member.voice.channel.join();
-
-        const queue = this.client.queues.get(msg.guild.id);
-        if (queue) this.connection = connection;
-        else this.client.queues.set(msg.guild.id, new MusicQueue(connection));
+        const player = this.client.players.get(msg.guild.id);
+        if (player) player.join(msg.member.voice.channel);
+        else this.client.players.set(msg.guild.id, new Player(msg.member.voice.channel));
     }
 };

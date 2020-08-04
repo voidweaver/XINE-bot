@@ -2,10 +2,9 @@ const { Command } = require('discord-akairo');
 const { MessageEmbed } = require('discord.js');
 const { stripIndents } = require('common-tags');
 const search = require('yt-search');
-const ytdl = require('ytdl-core-discord');
 
 const { c } = require('../settings.json');
-const MusicQueue = require('../MusicQueue');
+const Player = require('../MusicPlayer');
 const { getPrefix, humanTime } = require('../util');
 module.exports = class PlayCommand extends Command {
     constructor() {
@@ -36,51 +35,45 @@ module.exports = class PlayCommand extends Command {
             return;
         }
 
-        if (!msg.guild.voice || !msg.guild.voice.connection) {
-            if (!msg.member.voice.channel) {
-                msg.channel.send(
-                    new MessageEmbed()
-                        .setTitle('Error')
-                        .setColor(c.embed.error)
-                        .setDescription('You and I am not in a voice channel.')
-                );
-                return;
-            }
+        let player = this.client.players.get(msg.guild.id);
 
-            const connection = await msg.member.voice.channel.join();
-
-            const queue = this.client.queues.get(msg.guild.id);
-            if (queue) queue.connection = connection;
-            else this.client.queues.set(msg.guild.id, new MusicQueue(connection));
+        if (!player && !msg.member.voice.channel) {
+            msg.channel.send(
+                new MessageEmbed()
+                    .setTitle('Error')
+                    .setColor(c.embed.error)
+                    .setDescription('You and I am not in a voice channel.')
+            );
+            return;
         }
 
-        let queue = this.client.queues.get(msg.guild.id);
+        if (player) player.join(msg.member.voice.channel);
+        else this.client.players.set(msg.guild.id, new Player(msg.member.voice.channel));
 
-        if (!queue) {
-            throw new Error('Queue not found despite creation');
-        }
+        player = this.client.players.get(msg.guild.id);
 
         let song;
 
         let youtube_regex = /(?:https?:\/\/)?(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|\w+\?v=|.+&v=))((\w|-){11})/;
 
+        let ytdl_query = args.query;
+
         if (youtube_regex.test(args.query)) {
-            song = {
-                url: args.query,
-                channel: msg.channel,
-                info: await ytdl.getBasicInfo(args.query).then((data) => {
-                    let info = data.player_response.videoDetails;
-                    return {
-                        title: info.title,
-                        duration: info.lengthSeconds,
-                    };
-                }),
+            let id_regex = /(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]+).*/;
+            ytdl_query = {
+                videoId: args.query.match(id_regex)[1],
             };
-        } else {
+        }
+
+        try {
             song = await new Promise((resolve, reject) => {
-                search(args.query, (err, data) => {
-                    if (err) reject(err);
-                    let video = data.videos[0];
+                search(ytdl_query, (err, data) => {
+                    if (err || !data || (data.videos && !data.videos.length)) {
+                        reject(err);
+                        return;
+                    }
+
+                    let video = data.videos ? data.videos[0] : data;
                     resolve({
                         url: video.url,
                         channel: msg.channel,
@@ -91,17 +84,25 @@ module.exports = class PlayCommand extends Command {
                     });
                 });
             });
-        }
-
-            queue.queue(song);
-
+        } catch (err) {
             msg.channel.send(
                 new MessageEmbed()
-                    .setTitle('Song queued')
-                    .setColor(c.embed.info)
-                    .setDescription(
-                        `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`
-                    )
+                    .setTitle("Couldn't find the song you're looking for")
+                    .setColor(c.embed.error)
+                    .setDescription(`No matches are found for query "${args.query}"`)
             );
+            return;
         }
+
+        player.queue(song);
+
+        msg.channel.send(
+            new MessageEmbed()
+                .setTitle('Song queued')
+                .setColor(c.embed.info)
+                .setDescription(
+                    `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`
+                )
+        );
+    }
 };

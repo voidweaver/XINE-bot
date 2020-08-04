@@ -3,7 +3,6 @@ const { MessageEmbed } = require('discord.js');
 const { stripIndent, oneLineTrim } = require('common-tags');
 
 const { c } = require('../settings.json');
-const MusicQueue = require('../MusicQueue');
 const { humanTime } = require('../util');
 
 module.exports = class QueueCommand extends Command {
@@ -17,27 +16,16 @@ module.exports = class QueueCommand extends Command {
     }
 
     async exec(msg) {
-        if (!msg.guild.voice || !msg.guild.voice.connection) {
-            if (!msg.member.voice.channel) {
-                msg.channel.send(
-                    new MessageEmbed()
-                        .setTitle('Error')
-                        .setColor(c.embed.error)
-                        .setDescription('You and I am not in a voice channel.')
-                );
-                return;
-            }
+        let player = this.client.players.get(msg.guild.id);
 
-            const connection = await msg.member.voice.channel.join();
-
-            const queue = this.client.queues.get(msg.guild.id);
-            if (!queue) this.client.queues.set(msg.guild.id, new MusicQueue(connection));
-        }
-
-        let queue = this.client.queues.get(msg.guild.id);
-
-        if (!queue) {
-            throw new Error('Queue not found despite creation');
+        if (!player) {
+            msg.channel.send(
+                new MessageEmbed()
+                    .setTitle('Error')
+                    .setColor(c.embed.error)
+                    .setDescription('I am not in a voice channel.')
+            );
+            return;
         }
 
         const songs_embed = new MessageEmbed().setTitle('Queue Information').setColor(c.embed.info);
@@ -46,7 +34,7 @@ module.exports = class QueueCommand extends Command {
 
         let current;
 
-        let songs = queue.requests;
+        let songs = player.requests;
 
         if (songs.length) {
             songs.forEach((song, i) => {
@@ -71,13 +59,8 @@ module.exports = class QueueCommand extends Command {
             songs_embed.setDescription(`:no_entry_sign:‎ ‎ **Not currently playing any song**`);
         }
 
-        if (items) {
-            songs_embed.addField('Up next:', items, true);
-            // songs_embed.addField('‎', titles, true);
-            // songs_embed.addField('‎', '‎', true);
-        } else {
-            songs_embed.addField('Up next:', 'Nothing up next. Try requesting some songs!');
-        }
+        if (items) songs_embed.addField('Up next:', items, true);
+        else songs_embed.addField('Up next:', 'Nothing up next. Try requesting some songs!');
 
         msg.channel.send(songs_embed);
     }

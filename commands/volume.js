@@ -12,15 +12,15 @@ module.exports = class JoinCommand extends Command {
             args: [
                 {
                     id: 'level',
-                    type: 'number'
-                }
+                    type: 'number',
+                },
             ],
-            channel: 'guild'
+            channel: 'guild',
         });
     }
 
     exec(msg, args) {
-        let queue = this.client.queues.get(msg.guild.id);
+        let player = this.client.players.get(msg.guild.id);
 
         const error_embed = new MessageEmbed().setColor(c.embed.error);
 
@@ -29,14 +29,14 @@ module.exports = class JoinCommand extends Command {
         if (volume_given) error_embed.setTitle('Error setting volume');
         else error_embed.setTitle('Error getting volume');
 
-        if (!queue) {
+        if (!player) {
             error_embed.setDescription('I am not in a voice channel.');
             msg.channel.send(error_embed);
             return;
         }
 
         if (volume_given) {
-            queue.setVolume(args.level);
+            player.setVolume(args.level);
 
             msg.channel.send(
                 new MessageEmbed().setDescription('Volume set').setColor(c.embed.success)
@@ -46,7 +46,7 @@ module.exports = class JoinCommand extends Command {
                 new MessageEmbed()
                     .setTitle('Volume info')
                     .setColor(c.embed.info)
-                    .setDescription(`Current volume is ${Util.toInlineCode(queue.volume)}`)
+                    .setDescription(`Current volume is ${Util.toInlineCode(player.volume)}`)
             );
         }
     }

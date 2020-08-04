@@ -2,8 +2,6 @@ const { Command } = require('discord-akairo');
 const { MessageEmbed } = require('discord.js');
 
 const { c } = require('../settings.json');
-const MusicQueue = require('../MusicQueue');
-
 module.exports = class SkipCommand extends Command {
     constructor() {
         super('skip', {
@@ -21,9 +19,9 @@ module.exports = class SkipCommand extends Command {
     }
 
     async exec(msg, args) {
-        let queue = this.client.queues.get(msg.guild.id);
+        let player = this.client.players.get(msg.guild.id);
 
-        if (!msg.guild.voice || !msg.guild.voice.connection) {
+        if (!player) {
             msg.channel.send(
                 new MessageEmbed()
                     .setTitle('Error')
@@ -31,9 +29,6 @@ module.exports = class SkipCommand extends Command {
                     .setDescription('I am not in a voice channel.')
             );
             return;
-        } else if (!queue) {
-            this.client.queues.set(msg.guild.id, new MusicQueue(msg.guild.voice.connection));
-            queue = this.client.queues.get(msg.guild.id);
         }
 
         if (args.by < 0) {
@@ -46,13 +41,9 @@ module.exports = class SkipCommand extends Command {
             return;
         }
 
-        if (!queue) {
-            throw new Error('Queue not found despite creation');
-        }
+        player.skip(args.by);
 
-        queue.skip(args.by);
-
-        if (!queue.requests.length) {
+        if (!player.requests.length) {
             msg.channel.send(
                 new MessageEmbed()
                     .setTitle('Queue skipped to end')
