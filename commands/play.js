@@ -99,7 +99,7 @@ module.exports = class PlayCommand extends Command {
         msg.channel.send(
             new MessageEmbed()
                 .setTitle('Song queued')
-                .setColor(c.embed.info)
+                .setColor(c.embed.success)
                 .setDescription(
                     `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`
                 )

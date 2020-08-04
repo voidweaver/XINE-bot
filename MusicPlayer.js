@@ -11,7 +11,7 @@ module.exports = class MusicPlayer {
         this.requests = [];
         this.dispatcher; // Dispatcher for the current song
 
-        this.volume = 1;
+        this.human_volume = 50;
     }
 
     join(channel) {
@@ -27,7 +27,7 @@ module.exports = class MusicPlayer {
                 quality: 'highestaudio',
                 type: 'opus',
             });
-            dispatcher.setVolumeLogarithmic(this.volume);
+            dispatcher.setVolumeLogarithmic(this.human_volume / 100);
 
             this.dispatcher = dispatcher;
 
@@ -71,7 +71,7 @@ module.exports = class MusicPlayer {
     }
 
     setVolume(vol) {
-        this.volume = vol;
-        if (this.dispatcher) this.dispatcher.setVolumeLogarithmic(this.volume);
+        this.human_volume = vol;
+        if (this.dispatcher) this.dispatcher.setVolumeLogarithmic(this.human_volume / 100);
     }
 };

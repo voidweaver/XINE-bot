@@ -12,7 +12,7 @@ module.exports = class JoinCommand extends Command {
             args: [
                 {
                     id: 'level',
-                    type: 'number',
+                    type: 'string',
                 },
             ],
             channel: 'guild',
@@ -24,9 +24,10 @@ module.exports = class JoinCommand extends Command {
 
         const error_embed = new MessageEmbed().setColor(c.embed.error);
 
-        const volume_given = typeof args.level === 'number' && !isNaN(args.level);
+        let volume = parseInt(args.level, 10);
+        let absolute = true;
 
-        if (volume_given) error_embed.setTitle('Error setting volume');
+        if (!isNaN(volume)) error_embed.setTitle('Error setting volume');
         else error_embed.setTitle('Error getting volume');
 
         if (!player) {
@@ -35,18 +36,51 @@ module.exports = class JoinCommand extends Command {
             return;
         }
 
-        if (volume_given) {
-            player.setVolume(args.level);
+        if (!isNaN(volume)) {
+            if (args.level.startsWith('+') || args.level.startsWith('-')) {
+                volume = volume + player.human_volume;
+                absolute = false;
+            }
+
+            if (volume < 0) {
+                if (absolute)
+                    msg.channel.send(
+                        new MessageEmbed()
+                            .setTitle('Invalid volume')
+                            .setColor(c.embed.warning)
+                            .setDescription(
+                                'The volume must be from 0% to 100%, so using the minimum 0%'
+                            )
+                    );
+                volume = 0;
+            } else if (volume > 100) {
+                if (absolute)
+                    msg.channel.send(
+                        new MessageEmbed()
+                            .setTitle('Invalid volume')
+                            .setColor(c.embed.warning)
+                            .setDescription(
+                                'The volume must be from 0% to 100%, so using the maximum 100%'
+                            )
+                    );
+                volume = 100;
+            }
+
+            player.setVolume(volume);
 
             msg.channel.send(
-                new MessageEmbed().setDescription('Volume set').setColor(c.embed.success)
+                new MessageEmbed()
+                    .setColor(c.embed.success)
+                    .setDescription(`Volume set to ${Util.toInlineCode(player.human_volume + '%')}`)
             );
         } else {
             msg.channel.send(
                 new MessageEmbed()
                     .setTitle('Volume info')
                     .setColor(c.embed.info)
-                    .setDescription(`Current volume is ${Util.toInlineCode(player.volume)}`)
+                    .setDescription(
+                        `Current volume is ${Util.toInlineCode(player.human_volume + '%')}`
+                    )
             );
         }
     }
