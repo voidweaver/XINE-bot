@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "voidweaver",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "common-tags": "^1.8.0",
