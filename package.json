@@ -1,6 +1,6 @@
 {
   "name": "XINE-bot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -11,10 +11,12 @@
   "author": "voidweaver",
   "license": "MIT",
   "dependencies": {
+    "@discordjs/opus": "^0.3.2",
     "common-tags": "^1.8.0",
     "discord-akairo": "^8.0.0",
     "discord.js": "^12.2.0",
-    "mongoose": "^5.9.25"
+    "mongoose": "^5.9.25",
+    "ytdl-core-discord": "^1.2.1"
   },
   "devDependencies": {}
 }

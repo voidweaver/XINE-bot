@@ -1,7 +1,9 @@
-const model = require('./model');
+const { Collection } = require('discord.js');
 const Akairo = require('discord-akairo');
 const MongooseProvider = require('./providers/MongooseProvider');
-const { token } = require('./token.json');
+
+const model = require('./model');
+const { token } = require('./auth.json');
 
 class XINE extends Akairo.AkairoClient {
     constructor() {
@@ -33,6 +35,8 @@ class XINE extends Akairo.AkairoClient {
         this.listenerHandler.loadAll();
 
         this.settings = new MongooseProvider(model);
+
+        this.queues = new Collection();
     }
 
     async login(token) {

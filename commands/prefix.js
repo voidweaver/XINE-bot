@@ -14,10 +14,10 @@ module.exports = class PrefixCommand extends Command {
             category: 'util',
             args: [
                 {
-                    id: 'prefix'
-                }
+                    id: 'prefix',
+                },
             ],
-            channel: 'guild'
+            channel: 'guild',
         });
     }
 
