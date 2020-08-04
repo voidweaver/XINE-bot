@@ -49,16 +49,4 @@ module.exports = {
 
         return result;
     },
-
-    visualPadFront: (str, desired_width) => {
-        remaining = desired_width - str.length;
-        if (remaining <= 0) return str;
-        return '‎ '.repeat(remaining) + str;
-    },
-
-    visualPadBack: (str, desired_width) => {
-        remaining = desired_width - str.length;
-        if (remaining <= 0) return str;
-        return str + '‎ '.repeat(remaining);
-    },
 };

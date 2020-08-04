@@ -2,6 +2,7 @@ const { Command } = require('discord-akairo');
 const { MessageEmbed } = require('discord.js');
 const { stripIndents } = require('common-tags');
 const search = require('yt-search');
+const ytdl = require('ytdl-core-discord');
 
 const { c } = require('../settings.json');
 const MusicQueue = require('../MusicQueue');
@@ -67,6 +68,13 @@ module.exports = class PlayCommand extends Command {
             song = {
                 url: args.query,
                 channel: msg.channel,
+                info: await ytdl.getBasicInfo(args.query).then((data) => {
+                    let info = data.player_response.videoDetails;
+                    return {
+                        title: info.title,
+                        duration: info.lengthSeconds,
+                    };
+                }),
             };
         } else {
             song = await new Promise((resolve, reject) => {
@@ -85,15 +93,15 @@ module.exports = class PlayCommand extends Command {
             });
         }
 
-        queue.queue(song);
+            queue.queue(song);
 
-        msg.channel.send(
-            new MessageEmbed()
-                .setTitle('Song queued')
-                .setColor(c.embed.info)
-                .setDescription(
-                    `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`
-                )
-        );
-    }
+            msg.channel.send(
+                new MessageEmbed()
+                    .setTitle('Song queued')
+                    .setColor(c.embed.info)
+                    .setDescription(
+                        `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`
+                    )
+            );
+        }
 };

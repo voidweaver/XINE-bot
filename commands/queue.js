@@ -1,10 +1,10 @@
 const { Command } = require('discord-akairo');
 const { MessageEmbed } = require('discord.js');
-const { stripIndent } = require('common-tags');
+const { stripIndent, oneLineTrim } = require('common-tags');
 
 const { c } = require('../settings.json');
 const MusicQueue = require('../MusicQueue');
-const { humanTime, visualPadBack } = require('../util');
+const { humanTime } = require('../util');
 
 module.exports = class QueueCommand extends Command {
     constructor() {
@@ -43,7 +43,6 @@ module.exports = class QueueCommand extends Command {
         const songs_embed = new MessageEmbed().setTitle('Queue Information').setColor(c.embed.info);
 
         let items = '';
-        let titles = '';
 
         let current;
 
@@ -56,12 +55,12 @@ module.exports = class QueueCommand extends Command {
                     return;
                 }
 
-                items += `**${i}**`.padStart(31, '‎ ') + '\n';
-                titles +=
-                    visualPadBack(
-                        `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`,
-                        40 + 28 + 4 + 4
-                    ) + '\n';
+                items +=
+                    oneLineTrim`
+                    ${'‎ '.repeat(songs.length.toString().length - i.toString().length)}
+                    \`${i}\`‎ **[${song.info.title}](${song.url})** (${humanTime(
+                        song.info.duration
+                    )})` + '\n';
             });
 
             songs_embed.setDescription(stripIndent`
@@ -74,8 +73,8 @@ module.exports = class QueueCommand extends Command {
 
         if (items) {
             songs_embed.addField('Up next:', items, true);
-            songs_embed.addField('‎', titles, true);
-            songs_embed.addField('‎', '‎', true);
+            // songs_embed.addField('‎', titles, true);
+            // songs_embed.addField('‎', '‎', true);
         } else {
             songs_embed.addField('Up next:', 'Nothing up next. Try requesting some songs!');
         }
