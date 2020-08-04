@@ -37,6 +37,17 @@ module.exports = class MusicQueue {
         if (this.requests.length == 1) this.play(this.requests[0]);
     }
 
+    skip(by) {
+        if (this.dispatcher) this.dispatcher.end();
+
+        this.requests = this.requests.slice(by);
+        if (this.requests.length == 1) this.play(this.requests[0]);
+    }
+
+    remove(index) {
+        this.requests.splice(index, 1);
+    }
+
     clearQueue() {
         this.requests = [];
     }
