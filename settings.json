@@ -7,5 +7,6 @@
             "warning": "#ffd740"
         }
     },
-    "prefix": "%"
+    "prefix": "%",
+    "db_name": "xine"
 }
