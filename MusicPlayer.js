@@ -8,7 +8,8 @@ module.exports = class MusicPlayer {
             this.connection = connection;
         });
 
-        this.requests = [];
+        this.current;
+        this.upcoming = [];
         this.dispatcher; // Dispatcher for the current song
 
         this.human_volume = 50;
@@ -21,8 +22,12 @@ module.exports = class MusicPlayer {
         });
     }
 
-    play(song) {
-        ytdl(song.url).then((stream) => {
+    play() {
+        this.current = this.upcoming.shift();
+
+        if (!this.current) return;
+
+        ytdl(this.current.url).then((stream) => {
             const dispatcher = this.connection.play(stream, {
                 quality: 'highestaudio',
                 type: 'opus',
@@ -31,42 +36,41 @@ module.exports = class MusicPlayer {
 
             this.dispatcher = dispatcher;
 
-            song.channel.send(
+            this.current.channel.send(
                 new MessageEmbed().setDescription(
-                    `Now playing **[${song.info.title}](${song.url})**`
+                    `Now playing **[${this.current.info.title}](${this.current.url})**`
                 )
             );
 
             dispatcher.on('finish', () => {
-                this.requests.shift();
-                if (this.requests[0]) this.play(this.requests[0]);
+                if (this.upcoming[0]) this.play(this.upcoming[0]);
             });
         });
     }
 
     queue(song) {
-        this.requests.push(song);
-        if (this.requests.length == 1) this.play(this.requests[0]);
+        this.upcoming.push(song);
+        if (!this.current) this.play();
     }
 
     skip(by) {
-        if (this.dispatcher) this.dispatcher.end();
+        if (this.dispatcher) this.dispatcher.destroy();
 
-        this.requests = this.requests.slice(by);
-        if (this.requests.length == 1) this.play(this.requests[0]);
+        this.play();
+        this.upcoming = this.upcoming.slice(by);
     }
 
     remove(index) {
-        this.requests.splice(index, 1);
+        this.upcoming.splice(index, 1);
     }
 
     clearQueue() {
-        this.requests = [];
+        this.upcoming = [];
     }
 
     disconnect() {
         this.clearQueue();
-        this.dispatcher.end();
+        this.dispatcher.destroy();
         this.connection.disconnect();
     }
 

@@ -42,7 +42,9 @@ module.exports = class RemoveCommand extends Command {
             return;
         }
 
-        if (args.index <= 0 || args.index >= player.requests.length) {
+        let technical_index = args.index - 1;
+
+        if (technical_index < 0 || technical_index >= player.upcoming.length) {
             msg.channel.send(
                 new MessageEmbed()
                     .setTitle('Could not remove song')
@@ -52,8 +54,8 @@ module.exports = class RemoveCommand extends Command {
             return;
         }
 
-        let original = player.requests[args.index];
-        player.remove(args.index);
+        let original = player.upcoming[technical_index];
+        player.remove(technical_index);
 
         msg.channel.send(
             new MessageEmbed()

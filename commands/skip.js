@@ -43,7 +43,7 @@ module.exports = class SkipCommand extends Command {
 
         player.skip(args.by);
 
-        if (!player.requests.length) {
+        if (!player.upcoming.length && args.by > 1) {
             msg.channel.send(
                 new MessageEmbed()
                     .setTitle('Queue skipped to end')

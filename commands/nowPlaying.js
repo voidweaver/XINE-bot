@@ -18,7 +18,7 @@ module.exports = class NowPlayingCommand extends Command {
     async exec(msg) {
         let player = this.client.players.get(msg.guild.id);
 
-        if (!player || !player.requests[0]) {
+        if (!player || !player.current) {
             msg.channel.send(
                 new MessageEmbed()
                     .setColor(c.embed.error)
@@ -27,7 +27,7 @@ module.exports = class NowPlayingCommand extends Command {
             return;
         }
 
-        let current = player.requests[0];
+        let current = player.current;
 
         msg.channel.send(
             new MessageEmbed().setColor(c.embed.info).setDescription(stripIndent`

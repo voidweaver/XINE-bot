@@ -7,19 +7,21 @@ const { c } = require('../settings.json');
 const Player = require('../MusicPlayer');
 const { getPrefix, humanTime } = require('../util');
 module.exports = class PlayCommand extends Command {
-    constructor() {
-        super('play', {
-            aliases: ['play', 'p'],
-            category: 'music',
-            args: [
-                {
-                    id: 'query',
-                    type: 'string',
-                    match: 'text',
-                },
-            ],
-            channel: 'guild',
-        });
+    constructor(id, properties) {
+        if (!id || !properties)
+            super('play', {
+                aliases: ['play', 'p'],
+                category: 'music',
+                args: [
+                    {
+                        id: 'query',
+                        type: 'string',
+                        match: 'text',
+                    },
+                ],
+                channel: 'guild',
+            });
+        else super(id, properties);
     }
 
     async exec(msg, args) {
@@ -94,7 +96,7 @@ module.exports = class PlayCommand extends Command {
             return;
         }
 
-        player.queue(song);
+        this.do_queue(song, player);
 
         msg.channel.send(
             new MessageEmbed()
@@ -104,5 +106,9 @@ module.exports = class PlayCommand extends Command {
                     `**[${song.info.title}](${song.url})** (${humanTime(song.info.duration)})`
                 )
         );
+    }
+
+    do_queue(song, player) {
+        player.queue(song);
     }
 };

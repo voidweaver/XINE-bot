@@ -32,29 +32,24 @@ module.exports = class QueueCommand extends Command {
 
         let items = '';
 
-        let current;
+        let current = player.current;
 
-        let songs = player.requests;
+        let songs = player.upcoming;
 
-        if (songs.length) {
+        if (current) {
             songs.forEach((song, i) => {
-                if (i == 0) {
-                    current = song;
-                    return;
-                }
-
                 items +=
                     oneLineTrim`
                     ${'‎ '.repeat(songs.length.toString().length - i.toString().length)}
-                    \`${i}\`‎ **[${song.info.title}](${song.url})** (${humanTime(
+                    \`${i + 1}\`‎ **[${song.info.title}](${song.url})** (${humanTime(
                         song.info.duration
                     )})` + '\n';
             });
 
-            songs_embed.setDescription(stripIndent`
-                :musical_note:‎ ‎ **Currently Playing:
-                [${current.info.title}](${current.url})** (${humanTime(current.info.duration)})
-            `);
+            songs_embed.addField(
+                ':musical_note:‎ ‎ Currently Playing:',
+                `**[${current.info.title}](${current.url})** (${humanTime(current.info.duration)})`
+            );
         } else {
             songs_embed.setDescription(`:no_entry_sign:‎ ‎ **Not currently playing any song**`);
         }
