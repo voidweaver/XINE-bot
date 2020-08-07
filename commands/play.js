@@ -49,10 +49,12 @@ module.exports = class PlayCommand extends Command {
             return;
         }
 
-        if (player) player.join(msg.member.voice.channel);
-        else this.client.players.set(msg.guild.id, new Player(msg.member.voice.channel));
-
-        player = this.client.players.get(msg.guild.id);
+        if (!player) {
+            player = new Player(msg.member.voice.channel);
+            this.client.players.set(msg.guild.id, player);
+        } else {
+            player.join(msg.member.voice.channel);
+        }
 
         let song;
 

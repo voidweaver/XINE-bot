@@ -1,6 +1,8 @@
 const ytdl = require('ytdl-core-discord');
 const { MessageEmbed } = require('discord.js');
 
+const { c } = require('./settings.json');
+
 module.exports = class MusicPlayer {
     constructor(channel) {
         this.channel = channel;
@@ -37,9 +39,11 @@ module.exports = class MusicPlayer {
             this.dispatcher = dispatcher;
 
             this.current.channel.send(
-                new MessageEmbed().setDescription(
-                    `Now playing **[${this.current.info.title}](${this.current.url})**`
-                )
+                new MessageEmbed()
+                    .setColor(c.embed.info)
+                    .setDescription(
+                        `Now playing **[${this.current.info.title}](${this.current.url})**`
+                    )
             );
 
             dispatcher.on('finish', () => {
