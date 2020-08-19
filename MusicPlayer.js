@@ -58,7 +58,7 @@ module.exports = class MusicPlayer {
     }
 
     skip(by) {
-        if (this.dispatcher) this.dispatcher.destroy();
+        if (this.dispatcher) this.dispatcher.end();
 
         this.play();
         this.upcoming = this.upcoming.slice(by);
@@ -74,7 +74,7 @@ module.exports = class MusicPlayer {
 
     disconnect() {
         this.clearQueue();
-        this.dispatcher.destroy();
+        this.dispatcher.end();
         this.connection.disconnect();
     }
 
