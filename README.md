@@ -15,7 +15,7 @@ This is a Discord bot I made. There are not so many features packed in here. I j
     ```shell
     $ git clone https://github.com/voidweaver/XINE-bot.git
     ```
-2. Copy the bot's token and your discord ID into a JSON file named `auth.json` on the root directory<br>
+2. Copy your bot's token and your Discord ID into a JSON file named `auth.json` on the root directory<br>
    The file's content should look like:
    ```json
    {
